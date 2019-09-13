@@ -15,6 +15,7 @@
     'author': "OpenERP SA, "
               "Tecnativa, "
               "LasLabs, "
+              "ACSONE SA/NV, "
               "Odoo Community Association (OCA)",
     'website': 'https://github.com/oca/contract',
     'depends': ['base', 'account', 'product'],
