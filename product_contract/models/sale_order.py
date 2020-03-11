@@ -99,13 +99,19 @@ class SaleOrder(models.Model):
         ).action_create_contract()
         return super(SaleOrder, self).action_confirm()
 
-    @api.multi
-    @api.depends("order_line")
+    def _get_contract_count_domain(self):
+        return [("order_id", "in", self.ids)]
+
+    @api.depends("order_line.contract_id")
     def _compute_contract_count(self):
-        for rec in self:
-            rec.contract_count = len(
-                rec.order_line.mapped('contract_id').filtered(
-                    lambda r: r.active))
+        groups = self.env["sale.order.line"].read_group(
+            domain=self._get_contract_count_domain(),
+            fields=["contract_id"],
+            groupby=["contract_id"],
+        )
+        counts = {g["contract_id"][0]: g["contract_id_count"] for g in groups}
+        for sale in self:
+            sale.contract_count = counts.get(sale.id, 0)
 
     @api.multi
     def action_show_contracts(self):
